@@ -2,6 +2,7 @@ import { expect, test } from "@rstest/core";
 
 import {
   getDefaultReasoningEffortForMode,
+  getReasoningEffortForRequest,
   REASONING_EFFORT_OPTIONS,
 } from "@/core/threads/reasoning-effort";
 
@@ -16,4 +17,13 @@ test("flash 与未选择模式保持既有默认行为", () => {
 
 test("工作台可枚举并显式选择 xhigh", () => {
   expect(REASONING_EFFORT_OPTIONS).toContain("xhigh");
+});
+
+test("提交上下文在 ultra 模式下默认发送 xhigh", () => {
+  expect(getReasoningEffortForRequest("ultra", undefined)).toBe("xhigh");
+});
+
+test("提交上下文保留显式选择的 xhigh 与 flash 空值语义", () => {
+  expect(getReasoningEffortForRequest("pro", "xhigh")).toBe("xhigh");
+  expect(getReasoningEffortForRequest("flash", undefined)).toBeUndefined();
 });

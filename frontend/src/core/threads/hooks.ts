@@ -26,7 +26,7 @@ import type { UploadedFileInfo } from "../uploads";
 import { promptInputFilePartToFile, uploadFiles } from "../uploads";
 
 import { fetchThreadTokenUsage } from "./api";
-import { getDefaultReasoningEffortForMode } from "./reasoning-effort";
+import { getReasoningEffortForRequest } from "./reasoning-effort";
 import {
   buildThreadsSearchQueryOptions,
   DEFAULT_THREAD_SEARCH_PARAMS,
@@ -1259,9 +1259,10 @@ export function useThreadStream({
               thinking_enabled: context.mode !== "flash",
               is_plan_mode: context.mode === "pro" || context.mode === "ultra",
               subagent_enabled: context.mode === "ultra",
-              reasoning_effort:
-                context.reasoning_effort ??
-                getDefaultReasoningEffortForMode(context.mode),
+              reasoning_effort: getReasoningEffortForRequest(
+                context.mode,
+                context.reasoning_effort,
+              ),
               thread_id: threadId,
             },
           },
@@ -1358,9 +1359,10 @@ export function useThreadStream({
             thinking_enabled: context.mode !== "flash",
             is_plan_mode: context.mode === "pro" || context.mode === "ultra",
             subagent_enabled: context.mode === "ultra",
-            reasoning_effort:
-              context.reasoning_effort ??
-              getDefaultReasoningEffortForMode(context.mode),
+            reasoning_effort: getReasoningEffortForRequest(
+              context.mode,
+              context.reasoning_effort,
+            ),
             thread_id: threadId,
           },
         });

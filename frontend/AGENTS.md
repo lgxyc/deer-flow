@@ -74,7 +74,6 @@ The frontend is a stateful chat application. Users create **threads** (conversat
 - **Thread hooks** (`useThreadStream`, `useSubmitThread`, `useThreads`) are the primary API interface
 - **LangGraph client** is a singleton obtained via `getAPIClient()` in `core/api/`
 - **Environment validation** uses `@t3-oss/env-nextjs` with Zod schemas (`src/env.js`). Skip with `SKIP_ENV_VALIDATION=1`
-- **Workspace reasoning effort** currently supports `minimal`, `low`, `medium`, `high`, and `xhigh`; `Ultra` mode defaults to `xhigh` when a selected model declares `supports_reasoning_effort`
 
 ### Interaction Ownership
 

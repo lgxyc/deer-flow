@@ -27,3 +27,24 @@ export function getDefaultReasoningEffortForMode(
       return undefined;
   }
 }
+
+/** 生成实际发送给后端的推理强度，保留显式选择并兼顾模式默认值。 */
+export function getReasoningEffortForRequest(
+  mode: ThreadMode | undefined,
+  reasoningEffort: ReasoningEffort | undefined,
+): ReasoningEffort | undefined {
+  if (reasoningEffort) {
+    return reasoningEffort;
+  }
+
+  switch (mode) {
+    case "thinking":
+      return "low";
+    case "pro":
+      return "medium";
+    case "ultra":
+      return "xhigh";
+    default:
+      return undefined;
+  }
+}
