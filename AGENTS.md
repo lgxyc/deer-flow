@@ -26,6 +26,14 @@ Use the canonical triage labels mapped in `docs/agents/triage-labels.md`. See `d
 
 This repo currently uses a single-context layout with one root `CONTEXT.md` and global ADRs under `docs/adr/`. See `docs/agents/domain.md`.
 
+### Python backend standards
+
+Python backend implementation rules for the research-platform work live in `docs/agents/python-backend-standards.md`.
+
+### QA checklist
+
+The mandatory completion gate lives in `docs/agents/qa-checklist.md`.
+
 ## What is DeerFlow
 
 DeerFlow is a LangGraph-based AI super-agent system with a full-stack architecture. The
@@ -153,6 +161,9 @@ These apply repo-wide; module guides own the module-specific detail.
 - Keep one implementation branch per issue, one issue focus per PR, and do not mix unrelated slices in the same change.
 - Use Chinese for repo-local planning artifacts created for this project unless a specific upstream contribution requires English.
 - When repo-level and subproject docs conflict, prefer the more specific source and call out the conflict in the completion summary.
+- Any Python backend change must follow `docs/agents/python-backend-standards.md`.
+- Any issue completion must satisfy `docs/agents/qa-checklist.md`.
+- Coding is not complete until `$review` has been run against `main` and unresolved hard findings are fixed.
 
 ## Git Rules
 

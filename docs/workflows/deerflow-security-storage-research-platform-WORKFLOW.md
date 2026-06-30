@@ -19,6 +19,7 @@
 - Do not work on issues outside this workflow unless the user explicitly updates this file.
 - Before coding, read the parent PRD, current issue, `AGENTS.md`, `docs/agents/*.md`, `CONTEXT.md`, and the relevant ADRs.
 - Start from the issue's `Working Set`. Do not begin with blind whole-repo search; widen search only when the working set no longer explains the dependency.
+- After coding and basic verification, run the mandatory `$review` gate against `main`. If Standards or Spec review reports unresolved hard findings, fix them and rerun review before marking the issue done.
 
 ## Issue source
 
@@ -66,6 +67,8 @@ None
 - `docs/agents/issue-tracker.md`
 - `docs/agents/triage-labels.md`
 - `docs/agents/domain.md`
+- `docs/agents/python-backend-standards.md`
+- `docs/agents/qa-checklist.md`
 - `CONTEXT.md`
 - `docs/adr/*.md`
 - `CONTRIBUTING.md`
@@ -86,6 +89,7 @@ None
 - Prefer squash merge.
 - Do not leave `WIP`, `tmp`, or other low-information commit messages in shared history.
 - The final issue-closing commit should explicitly reference the issue id.
+- Mandatory completion gate: run `$review` against `main`; unresolved hard findings on either Standards or Spec block completion.
 
 ## Commands
 
@@ -127,6 +131,12 @@ cd frontend && pnpm typecheck
 cd frontend && pnpm build
 ```
 
+### Review
+
+```text
+$review against main
+```
+
 ## Continue-session instructions
 
 When the user says `继续` and references this workflow file, follow this loop:
@@ -139,12 +149,14 @@ When the user says `继续` and references this workflow file, follow this loop:
 6. Read the development standards listed above.
 7. Use `/implement` skill to implement that issue's scope.
 8. Run the configured verification commands appropriate to the issue's scope.
-9. Mark only verified acceptance criteria as checked.
-10. Commit only files related to the issue and issue/workflow bookkeeping.
-11. Update this workflow's issue table status for the completed issue.
-12. Output completion summary with verification results.
-13. **Block and wait for user confirmation before proceeding.**
-14. Stop. Do not begin another issue in the same session.
+9. Run `$review` against `main`.
+10. If review reports unresolved hard findings, fix them and repeat steps 8-9.
+11. Mark only verified acceptance criteria as checked.
+12. Commit only files related to the issue and issue/workflow bookkeeping.
+13. Update this workflow's issue table status for the completed issue.
+14. Output completion summary with verification results and review status.
+15. **Block and wait for user confirmation before proceeding.**
+16. Stop. Do not begin another issue in the same session.
 
 Ready issue checks:
 
