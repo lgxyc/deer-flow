@@ -162,6 +162,13 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
     _enable_stream_usage_by_default(model_config.use, model_settings_from_config)
     _apply_stream_chunk_timeout_default(model_config.use, model_settings_from_config)
 
+    # Consume explicit reasoning_effort from kwargs (frontend) to avoid
+    # duplicate keyword arguments when model_settings_from_config already
+    # carries one from config.yaml.  This must happen unconditionally
+    # because model_class(**kwargs, **model_settings_from_config) on the
+    # instantiation path raises TypeError on duplicate keys.
+    explicit_effort = kwargs.pop("reasoning_effort", None)
+
     # For Codex Responses API models: map thinking mode to reasoning_effort
     from deerflow.models.openai_codex_provider import CodexChatModel
 
@@ -169,14 +176,19 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
         # The ChatGPT Codex endpoint currently rejects max_tokens/max_output_tokens.
         model_settings_from_config.pop("max_tokens", None)
 
-        # Use explicit reasoning_effort from frontend if provided (low/medium/high)
-        explicit_effort = kwargs.pop("reasoning_effort", None)
         if not thinking_enabled:
             model_settings_from_config["reasoning_effort"] = "none"
         elif explicit_effort and explicit_effort in ("low", "medium", "high", "xhigh"):
             model_settings_from_config["reasoning_effort"] = explicit_effort
         elif "reasoning_effort" not in model_settings_from_config:
             model_settings_from_config["reasoning_effort"] = "medium"
+    else:
+        # Non-Codex models (e.g. langchain_openai:ChatOpenAI): if the
+        # frontend provided an explicit reasoning_effort and the config
+        # also carries one, prefer the frontend value to avoid the
+        # duplicate-keyword crash on instantiation.
+        if explicit_effort and explicit_effort in ("low", "medium", "high", "xhigh"):
+            model_settings_from_config["reasoning_effort"] = explicit_effort
 
     # For MindIE models: enforce conservative retry defaults.
     # Timeout normalization is handled inside MindIEChatModel itself.
