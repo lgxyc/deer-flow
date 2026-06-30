@@ -12,6 +12,20 @@ guide rather than expecting full detail here:
 - **[frontend/AGENTS.md](frontend/AGENTS.md)** — frontend depth: Next.js App Router layout,
   thread/streaming data flow, code style, commands.
 
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs for this working copy are tracked in GitHub Issues on `lgxyc/deer-flow`, not the upstream `origin` remote. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the canonical triage labels mapped in `docs/agents/triage-labels.md`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This repo currently uses a single-context layout with one root `CONTEXT.md` and global ADRs under `docs/adr/`. See `docs/agents/domain.md`.
+
 ## What is DeerFlow
 
 DeerFlow is a LangGraph-based AI super-agent system with a full-stack architecture. The
@@ -38,11 +52,11 @@ other `/api/*` go straight to the Gateway REST routers. See
 
 ## Repository Map
 
-```
+```text
 deer-flow/
 ├── Makefile                        # Root orchestration: drives the full stack (dev/start/stop, docker, setup)
-├── config.example.yaml             # Template → copy to config.yaml (gitignored) at repo root
-├── extensions_config.example.json  # Template → copy to extensions_config.json (gitignored): MCP servers + skills
+├── config.example.yaml             # Template -> copy to config.yaml (gitignored) at repo root
+├── extensions_config.example.json  # Template -> copy to extensions_config.json (gitignored): MCP servers + skills
 ├── backend/                        # Python backend — see backend/AGENTS.md
 │   ├── Makefile                    # Per-module backend commands (dev, gateway, test, lint, migrate-rev)
 │   ├── packages/harness/           # deerflow-harness package (import: deerflow.*) — agent framework
@@ -56,8 +70,8 @@ deer-flow/
 └── docs/                           # Cross-cutting docs, plans, and design notes
 ```
 
-Runtime config lives at the **repo root**: copy `config.example.yaml` → `config.yaml`
-(main app config) and `extensions_config.example.json` → `extensions_config.json` (MCP
+Runtime config lives at the **repo root**: copy `config.example.yaml` -> `config.yaml`
+(main app config) and `extensions_config.example.json` -> `extensions_config.json` (MCP
 servers + skills). Both real files are gitignored and may be edited at runtime via the
 Gateway API. Config schema and resolution order are documented in
 [backend/AGENTS.md](backend/AGENTS.md).
@@ -101,13 +115,13 @@ Rule of thumb: **root `make` = the full application**; **`backend/Makefile` and 
 
 ## Where to Go Next
 
-- Backend work → **[backend/AGENTS.md](backend/AGENTS.md)**
-- Frontend work → **[frontend/AGENTS.md](frontend/AGENTS.md)**
-- Setup & install → **[Install.md](Install.md)**, **[CONTRIBUTING.md](CONTRIBUTING.md)**
-- Project overview & usage → **[README.md](README.md)** (translations: `README_zh.md`,
+- Backend work -> **[backend/AGENTS.md](backend/AGENTS.md)**
+- Frontend work -> **[frontend/AGENTS.md](frontend/AGENTS.md)**
+- Setup & install -> **[Install.md](Install.md)**, **[CONTRIBUTING.md](CONTRIBUTING.md)**
+- Project overview & usage -> **[README.md](README.md)** (translations: `README_zh.md`,
   `README_ja.md`, `README_fr.md`, `README_ru.md`)
-- Security policy → **[SECURITY.md](SECURITY.md)**
-- Changes → **[CHANGELOG.md](CHANGELOG.md)**
+- Security policy -> **[SECURITY.md](SECURITY.md)**
+- Changes -> **[CHANGELOG.md](CHANGELOG.md)**
 
 ## Cross-Cutting Conventions
 
@@ -121,3 +135,33 @@ These apply repo-wide; module guides own the module-specific detail.
   frontend tests live in `frontend/tests/`.
 - **Format before pushing** — run `make format` (backend) / `pnpm check` (frontend). Backend
   CI enforces `ruff format --check`, so formatting must be clean before a push.
+
+## Research Platform Standards
+
+- Preserve the raw/derived split. `Paper Record` is the raw truth layer; `Analysis View` and `Proposal Draft` are derived and must remain recomputable.
+- Keep all research jobs idempotent. Re-running a `Topic Watch` or reanalysis flow must not duplicate papers, PDFs, views, or proposal versions.
+- Push business logic into deep modules. Routers, pages, and UI state should orchestrate, not own research-domain rules or state machines.
+- Model lifecycle explicitly. `Analysis View` and `Proposal Draft` need visible status and version semantics; do not hide mutation behind silent overwrite.
+- Test observable behavior. Favor tests for state transitions, deduplication, scheduling behavior, scoring output, review actions, and knowledge-base emission over internal implementation details.
+- Preserve the existing backend boundary. `app.*` may depend on `deerflow.*`; `deerflow.*` must not depend on `app.*`.
+- Record stable language and hard-to-reverse decisions. Add domain terms to `CONTEXT.md`; add surprising or costly decisions to `docs/adr/`.
+
+## Working Rules
+
+- For issue-driven implementation, read the parent PRD, the current issue, `AGENTS.md`, `docs/agents/*.md`, `CONTEXT.md`, and relevant ADRs before coding.
+- Start from the issue's declared working set. Do not begin with blind whole-repo search; expand only when the local working set no longer explains the dependency.
+- Keep one implementation branch per issue, one issue focus per PR, and do not mix unrelated slices in the same change.
+- Use Chinese for repo-local planning artifacts created for this project unless a specific upstream contribution requires English.
+- When repo-level and subproject docs conflict, prefer the more specific source and call out the conflict in the completion summary.
+
+## Git Rules
+
+- Branch from `main`.
+- Use one branch per issue.
+- Name branches with both type and issue id, for example `feature/123-topic-watch-ingestion`.
+- Use Conventional Commits for every commit.
+- Do not merge multiple issues into one branch or one PR.
+- Rebase onto the latest `main` before review.
+- Prefer squash merge for implementation branches.
+- Do not leave `WIP`, `tmp`, `fix later`, or similarly low-information commit messages in shared history.
+- The final issue-closing commit should explicitly reference the issue id.
