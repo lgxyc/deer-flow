@@ -39,7 +39,10 @@ Read in this order:
 
 - Comments explain why, invariants, safety constraints, or non-obvious trade-offs. They should not narrate obvious syntax.
 - Keep comments true; stale comments are worse than no comments.
-- Write comments in English inside Python code to match the existing backend.
+- From this point forward, all newly added or modified code must use **Chinese comments**.
+- Every newly added or modified non-trivial function must have a Chinese function-level explanation.
+- Every key flow, state machine step, idempotence guard, complex branch, and boundary translation must have Chinese inline comments where the intent would otherwise be easy to miss.
+- Historical untouched code does not need to be rewritten just to change comment language.
 - Public modules, public functions, public classes, reducers, lifecycle hooks, and boundary helpers should have docstrings.
 - Use triple double quotes for docstrings.
 - Prefer short one-line docstrings when the summary fits.

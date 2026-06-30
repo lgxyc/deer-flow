@@ -15,6 +15,7 @@ Use this checklist before marking any issue done.
 - [ ] New write paths are idempotent or versioned as required.
 - [ ] Routers/pages remain thin; domain logic lives in deep modules.
 - [ ] No forbidden `deerflow.* -> app.*` dependency was introduced.
+- [ ] 新增或修改代码中的注释为中文，且函数级说明与关键块级说明都满足要求。
 - [ ] Comments explain invariants or trade-offs, not obvious syntax.
 - [ ] Public or tricky Python interfaces have appropriate docstrings.
 - [ ] Blocking I/O was not introduced onto async paths.
