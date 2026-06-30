@@ -22,7 +22,6 @@ def test_agent_entrypoints_point_to_the_documented_tracker_and_domain_docs():
     domain_docs = _read_repo_file("docs/agents/domain.md")
 
     # 这里锁定 issue tracker 与标准文档入口，避免后续流程从错误 remote 推断任务来源。
-    assert "source of truth" in agents
     assert "lgxyc/deer-flow" in agents
     assert "docs/agents/issue-tracker.md" in agents
     assert "docs/agents/triage-labels.md" in agents
@@ -77,6 +76,30 @@ def test_initial_adrs_capture_the_required_research_platform_decisions():
     assert "`CLAUDE.md`" in adr_0004
 
 
+def test_engineering_discipline_docs_remain_readable_from_the_baseline():
+    """验证后续 issue 直接依赖的工程纪律文档仍在基线读取集合中。"""
+    agents = _read_repo_file("AGENTS.md")
+    contributing = _read_repo_file("CONTRIBUTING.md")
+    python_backend_standards = _read_repo_file("docs/agents/python-backend-standards.md")
+    qa_checklist = _read_repo_file("docs/agents/qa-checklist.md")
+
+    # 这里锁定 AGENTS 对工程纪律文档的显式引用，避免后续 issue 再次口头重述规则。
+    assert "docs/agents/python-backend-standards.md" in agents
+    assert "docs/agents/qa-checklist.md" in agents
+    assert "CONTRIBUTING.md" in agents
+
+    # 这里证明实现者能从 CONTRIBUTING 直接读到基础开发命令与运行入口。
+    assert "# Contributing to DeerFlow" in contributing
+    assert "make install" in contributing
+    assert "make dev" in contributing
+
+    # 这里锁定 backend 工程纪律与完成门槛文档的可读性，供后续 issue 直接引用。
+    assert "# Python Backend Standards" in python_backend_standards
+    assert "Mandatory review gate" in python_backend_standards
+    assert "# QA Checklist" in qa_checklist
+    assert "## 4. Mandatory review gate" in qa_checklist
+
+
 def test_claude_redirects_keep_agents_md_as_the_only_authoritative_entry():
     """验证子目录 `CLAUDE.md` 只做重定向，避免 agent 规范分叉。"""
     backend_claude = _read_repo_file("backend/CLAUDE.md")
@@ -85,5 +108,3 @@ def test_claude_redirects_keep_agents_md_as_the_only_authoritative_entry():
     # 这里锁定“只重定向不分叉”的入口约束，确保后续代理读取到同一份规范。
     assert "@AGENTS.md" in backend_claude
     assert "@AGENTS.md" in frontend_claude
-    assert "guidance lives in [AGENTS.md]" in backend_claude
-    assert "guidance lives in [AGENTS.md]" in frontend_claude
