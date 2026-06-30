@@ -1071,6 +1071,75 @@ def test_no_duplicate_kwarg_when_reasoning_effort_in_config_and_thinking_disable
     assert captured.get("reasoning_effort") == "minimal"
 
 
+def test_runtime_reasoning_effort_overrides_config_default_without_duplicate(monkeypatch):
+    """配置默认值与运行时覆盖同时存在时，不应对 ChatOpenAI 重复传参。"""
+    model = ModelConfig(
+        name="gpt-5.4",
+        display_name="GPT-5.4",
+        description=None,
+        use="langchain_openai:ChatOpenAI",
+        model="gpt-5.4",
+        reasoning_effort="xhigh",
+        supports_thinking=True,
+        supports_reasoning_effort=True,
+        supports_vision=False,
+    )
+    cfg = _make_app_config([model])
+
+    captured: dict = {}
+
+    class CapturingModel(FakeChatModel):
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+            BaseChatModel.__init__(self, **kwargs)
+
+    _patch_factory(monkeypatch, cfg, model_class=CapturingModel)
+
+    # 必须避免 `reasoning_effort` 重复展开为两个关键字参数。
+    factory_module.create_chat_model(
+        name="gpt-5.4",
+        thinking_enabled=True,
+        reasoning_effort="high",
+    )
+
+    assert captured.get("reasoning_effort") == "high"
+
+
+def test_runtime_reasoning_effort_cannot_override_forced_disable_value(monkeypatch):
+    """thinking 关闭时，禁用路径推导出的保守值必须压过运行时覆盖。"""
+    wte = {"extra_body": {"thinking": {"type": "enabled", "budget_tokens": 5000}}}
+    model = ModelConfig(
+        name="gpt-5.4",
+        display_name="GPT-5.4",
+        description=None,
+        use="langchain_openai:ChatOpenAI",
+        model="gpt-5.4",
+        reasoning_effort="xhigh",
+        supports_thinking=True,
+        supports_reasoning_effort=True,
+        when_thinking_enabled=wte,
+        supports_vision=False,
+    )
+    cfg = _make_app_config([model])
+
+    captured: dict = {}
+
+    class CapturingModel(FakeChatModel):
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+            BaseChatModel.__init__(self, **kwargs)
+
+    _patch_factory(monkeypatch, cfg, model_class=CapturingModel)
+
+    factory_module.create_chat_model(
+        name="gpt-5.4",
+        thinking_enabled=False,
+        reasoning_effort="high",
+    )
+
+    assert captured.get("reasoning_effort") == "minimal"
+
+
 # ---------------------------------------------------------------------------
 # stream_chunk_timeout default injection (issue #3189)
 # ---------------------------------------------------------------------------

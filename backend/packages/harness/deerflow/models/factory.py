@@ -79,6 +79,28 @@ def _apply_stream_chunk_timeout_default(model_use_path: str, model_settings_from
     model_settings_from_config["stream_chunk_timeout"] = _DEFAULT_STREAM_CHUNK_TIMEOUT_SECONDS
 
 
+def _dedupe_runtime_model_kwargs(
+    model_settings_from_config: dict,
+    runtime_kwargs: dict,
+    *,
+    thinking_enabled: bool,
+) -> tuple[dict, dict]:
+    """合并模型默认配置与运行时覆盖，避免同名参数重复传给模型构造函数。"""
+    merged_config = dict(model_settings_from_config)
+    merged_runtime = dict(runtime_kwargs)
+
+    # `reasoning_effort` 既可能来自 config.yaml 默认值，也可能来自前端 run context。
+    # thinking 开启时，运行时显式选择应覆盖默认值；thinking 关闭时，禁用路径注入
+    # 的保守值（例如 minimal）应优先，不能再被运行时值顶掉。
+    if "reasoning_effort" in merged_runtime and "reasoning_effort" in merged_config:
+        if thinking_enabled:
+            merged_config.pop("reasoning_effort", None)
+        else:
+            merged_runtime.pop("reasoning_effort", None)
+
+    return merged_config, merged_runtime
+
+
 def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *, app_config: AppConfig | None = None, attach_tracing: bool = True, **kwargs) -> BaseChatModel:
     """Create a chat model instance from the config.
 
@@ -193,7 +215,13 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
         if "stream_usage" in getattr(model_class, "model_fields", {}):
             model_settings_from_config["stream_usage"] = True
 
-    model_instance = model_class(**kwargs, **model_settings_from_config)
+    model_settings_from_config, kwargs = _dedupe_runtime_model_kwargs(
+        model_settings_from_config,
+        kwargs,
+        thinking_enabled=thinking_enabled,
+    )
+
+    model_instance = model_class(**model_settings_from_config, **kwargs)
 
     if attach_tracing:
         callbacks = build_tracing_callbacks()
