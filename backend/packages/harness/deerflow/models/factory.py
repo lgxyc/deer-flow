@@ -79,8 +79,31 @@ def _apply_stream_chunk_timeout_default(model_use_path: str, model_settings_from
     model_settings_from_config["stream_chunk_timeout"] = _DEFAULT_STREAM_CHUNK_TIMEOUT_SECONDS
 
 
+def _dedupe_runtime_model_kwargs(
+    model_settings_from_config: dict,
+    runtime_kwargs: dict,
+    *,
+    thinking_enabled: bool,
+    prefer_config_reasoning_effort: bool,
+) -> tuple[dict, dict]:
+    """合并模型默认配置与运行时覆盖，避免同名参数重复传给模型构造函数。"""
+    merged_config = dict(model_settings_from_config)
+    merged_runtime = dict(runtime_kwargs)
+
+    # `reasoning_effort` 既可能来自 config.yaml 默认值，也可能来自前端 run context。
+    # thinking 开启时，运行时显式选择应覆盖默认值；thinking 关闭时，禁用路径注入
+    # 的保守值（例如 minimal）应优先，不能再被运行时值顶掉。
+    if "reasoning_effort" in merged_runtime and "reasoning_effort" in merged_config:
+        if not thinking_enabled and prefer_config_reasoning_effort:
+            merged_runtime.pop("reasoning_effort", None)
+        else:
+            merged_config.pop("reasoning_effort", None)
+
+    return merged_config, merged_runtime
+
+
 def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *, app_config: AppConfig | None = None, attach_tracing: bool = True, **kwargs) -> BaseChatModel:
-    """Create a chat model instance from the config.
+    """根据配置创建聊天模型实例，并在运行时覆盖与默认值之间做安全合并。
 
     Args:
         name: The name of the model to create. If None, the first model in the config will be used.
@@ -99,7 +122,7 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
             get stripped.
 
     Returns:
-        A chat model instance.
+        BaseChatModel: 已完成 thinking / reasoning 参数整合的模型实例。
     """
     config = app_config or get_app_config()
     if name is None:
@@ -130,6 +153,7 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
     if model_config.thinking is not None:
         merged_thinking = {**(effective_wte.get("thinking") or {}), **model_config.thinking}
         effective_wte = {**effective_wte, "thinking": merged_thinking}
+    prefer_config_reasoning_effort = False
     if thinking_enabled and has_thinking_settings:
         if not model_config.supports_thinking:
             raise ValueError(f"Model {name} does not support thinking. Set `supports_thinking` to true in the `config.yaml` to enable thinking.") from None
@@ -139,6 +163,7 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
         if model_config.when_thinking_disabled is not None:
             # User-provided disable settings take full precedence
             model_settings_from_config.update(model_config.when_thinking_disabled)
+            prefer_config_reasoning_effort = "reasoning_effort" in model_config.when_thinking_disabled
         elif has_thinking_settings and effective_wte.get("extra_body", {}).get("thinking", {}).get("type"):
             # OpenAI-compatible gateway: thinking is nested under extra_body
             model_settings_from_config["extra_body"] = _deep_merge_dicts(
@@ -146,6 +171,7 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
                 {"thinking": {"type": "disabled"}},
             )
             model_settings_from_config["reasoning_effort"] = "minimal"
+            prefer_config_reasoning_effort = True
         elif has_thinking_settings and (disable_chat_template_kwargs := _vllm_disable_chat_template_kwargs(effective_wte.get("extra_body", {}).get("chat_template_kwargs") or {})):
             # vLLM uses chat template kwargs to switch thinking on/off.
             model_settings_from_config["extra_body"] = _deep_merge_dicts(
@@ -193,7 +219,14 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
         if "stream_usage" in getattr(model_class, "model_fields", {}):
             model_settings_from_config["stream_usage"] = True
 
-    model_instance = model_class(**kwargs, **model_settings_from_config)
+    model_settings_from_config, kwargs = _dedupe_runtime_model_kwargs(
+        model_settings_from_config,
+        kwargs,
+        thinking_enabled=thinking_enabled,
+        prefer_config_reasoning_effort=prefer_config_reasoning_effort,
+    )
+
+    model_instance = model_class(**model_settings_from_config, **kwargs)
 
     if attach_tracing:
         callbacks = build_tracing_callbacks()

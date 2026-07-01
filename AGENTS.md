@@ -138,6 +138,11 @@ These apply repo-wide; module guides own the module-specific detail.
 - **Documentation update policy** — keep docs in sync with code: update `README.md` for
   user-facing changes and the relevant `AGENTS.md` for development/architecture changes in
   the same change set.
+- **Documentation layering** — keep `README.md` and every `AGENTS.md` high-level: they own
+  stable architecture, constraints, routing, directory map, workflow, and stack-level
+  guidance. Do not pile feature-specific parameter notes, bug workarounds, or narrow
+  implementation details into these files; put that material in more specific docs, tests,
+  code comments, issue briefs, or ADRs when appropriate.
 - **Test-driven development** — features and bug fixes ship with tests. Backend tests live
   in `backend/tests/` (TDD is mandatory there; see [backend/AGENTS.md](backend/AGENTS.md));
   frontend tests live in `frontend/tests/`.

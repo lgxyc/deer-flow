@@ -67,6 +67,11 @@ import type { Skill } from "@/core/skills";
 import { useSkills } from "@/core/skills/hooks";
 import { useSuggestionsConfig } from "@/core/suggestions/hooks";
 import type { AgentThreadContext } from "@/core/threads";
+import {
+  getDefaultReasoningEffortForMode,
+  type ReasoningEffort,
+  type ThreadMode,
+} from "@/core/threads/reasoning-effort";
 import { textOfMessage } from "@/core/threads/utils";
 import { isIMEComposing } from "@/lib/ime";
 import { cn } from "@/lib/utils";
@@ -92,7 +97,7 @@ import { useThread } from "./messages/context";
 import { ModeHoverGuide } from "./mode-hover-guide";
 import { Tooltip } from "./tooltip";
 
-type InputMode = "flash" | "thinking" | "pro" | "ultra";
+type InputMode = ThreadMode;
 
 const MAX_SKILL_SUGGESTIONS = 6;
 const SUGGESTION_TEMPLATE_PLACEHOLDER_PATTERN =
@@ -187,7 +192,7 @@ export function InputBox({
     "thread_id" | "is_plan_mode" | "thinking_enabled" | "subagent_enabled"
   > & {
     mode: "flash" | "thinking" | "pro" | "ultra" | undefined;
-    reasoning_effort?: "minimal" | "low" | "medium" | "high";
+    reasoning_effort?: ReasoningEffort;
   };
   extraHeader?: React.ReactNode;
   /**
@@ -204,7 +209,7 @@ export function InputBox({
       "thread_id" | "is_plan_mode" | "thinking_enabled" | "subagent_enabled"
     > & {
       mode: "flash" | "thinking" | "pro" | "ultra" | undefined;
-      reasoning_effort?: "minimal" | "low" | "medium" | "high";
+      reasoning_effort?: ReasoningEffort;
     },
   ) => void;
   onFollowupsVisibilityChange?: (visible: boolean) => void;
@@ -342,21 +347,14 @@ export function InputBox({
       onContextChange?.({
         ...context,
         mode: getResolvedMode(mode, supportThinking),
-        reasoning_effort:
-          mode === "ultra"
-            ? "high"
-            : mode === "pro"
-              ? "medium"
-              : mode === "thinking"
-                ? "low"
-                : "minimal",
+        reasoning_effort: getDefaultReasoningEffortForMode(mode) ?? "minimal",
       });
     },
     [onContextChange, context, supportThinking],
   );
 
   const handleReasoningEffortSelect = useCallback(
-    (effort: "minimal" | "low" | "medium" | "high") => {
+    (effort: ReasoningEffort) => {
       onContextChange?.({
         ...context,
         reasoning_effort: effort,
@@ -1073,6 +1071,8 @@ export function InputBox({
                       " " + t.inputBox.reasoningEffortMedium}
                     {context.reasoning_effort === "high" &&
                       " " + t.inputBox.reasoningEffortHigh}
+                    {context.reasoning_effort === "xhigh" &&
+                      " " + t.inputBox.reasoningEffortXHigh}
                   </div>
                 </PromptInputActionMenuTrigger>
                 <PromptInputActionMenuContent className="w-70">
@@ -1166,6 +1166,28 @@ export function InputBox({
                           </div>
                         </div>
                         {context.reasoning_effort === "high" ? (
+                          <CheckIcon className="ml-auto size-4" />
+                        ) : (
+                          <div className="ml-auto size-4" />
+                        )}
+                      </PromptInputActionMenuItem>
+                      <PromptInputActionMenuItem
+                        className={cn(
+                          context.reasoning_effort === "xhigh"
+                            ? "text-accent-foreground"
+                            : "text-muted-foreground/65",
+                        )}
+                        onSelect={() => handleReasoningEffortSelect("xhigh")}
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-1 font-bold">
+                            {t.inputBox.reasoningEffortXHigh}
+                          </div>
+                          <div className="pl-2 text-xs">
+                            {t.inputBox.reasoningEffortXHighDescription}
+                          </div>
+                        </div>
+                        {context.reasoning_effort === "xhigh" ? (
                           <CheckIcon className="ml-auto size-4" />
                         ) : (
                           <div className="ml-auto size-4" />

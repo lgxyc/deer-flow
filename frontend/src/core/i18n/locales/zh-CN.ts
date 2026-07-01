@@ -103,6 +103,9 @@ export const zhCN: Translations = {
     reasoningEffortMediumDescription: "多层逻辑分析 + 基础验证",
     reasoningEffortHigh: "高",
     reasoningEffortHighDescription: "全维度逻辑推演 + 多路径验证 + 反推校验",
+    reasoningEffortXHigh: "极高",
+    reasoningEffortXHighDescription:
+      "面向最复杂任务的最高推理强度，附带更彻底的验证与更长的思考时间",
     searchModels: "搜索模型...",
     surpriseMe: "小惊喜",
     surpriseMePrompt: "给我一个小惊喜吧",
