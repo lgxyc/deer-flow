@@ -177,6 +177,7 @@ export const enUS: Translations = {
     recentChats: "Recent chats",
     demoChats: "Demo chats",
     agents: "Agents",
+    topicWatches: "Topic Watches",
   },
 
   // Agents
@@ -294,6 +295,62 @@ export const enUS: Translations = {
       wecom: "WeCom messages through your DeerFlow AI bot.",
     },
     connectedAs: (name: string) => `Connected as ${name}.`,
+  },
+
+  topicWatches: {
+    title: "Topic Watches",
+    description:
+      "Create research watches with explicit query terms, seed papers, template routing, and schedule presets.",
+    createTitle: "Create Topic Watch",
+    createDescription:
+      "Define the minimum control object that later ingest and analysis jobs will follow.",
+    boardTitle: "Topic Watch Board",
+    boardDescription:
+      "Review the watches already persisted for this workspace user.",
+    queryTerms: "Query terms",
+    queryTermsPlaceholder:
+      "One term per line, or separate multiple terms with commas.",
+    queryTermsRequired:
+      "Add at least one query term before creating a Topic Watch.",
+    seedPapers: "Seed papers",
+    seedPapersPlaceholder:
+      "Optional. Add one paper id or URL per line to steer the watch.",
+    seedPapersLabel: "Seed papers",
+    templateFamily: "Template family",
+    schedulePreset: "Schedule preset",
+    enabled: "Enabled",
+    enabledDescriptionOn: "This watch is active and ready for future runs.",
+    enabledDescriptionOff: "This watch is stored but intentionally disabled.",
+    createButton: "Create watch",
+    creating: "Creating watch...",
+    createdSuccess: "Topic Watch created",
+    createError: "Failed to create Topic Watch",
+    emptyTitle: "No Topic Watches yet",
+    emptyDescription:
+      "Create the first watch to make the research control plane visible in the workspace.",
+    viewDetails: "View details",
+    detailTitle: "Topic Watch Detail",
+    notFoundTitle: "Topic Watch unavailable",
+    notFound: "The requested Topic Watch could not be loaded.",
+    backToBoard: "Back to board",
+    configurationTitle: "Configuration",
+    configurationDescription:
+      "This is the persisted control-plane configuration for the watch.",
+    metadataTitle: "Metadata",
+    metadataDescription:
+      "Stable identifiers and timestamps for auditing later research runs.",
+    watchId: "Watch ID",
+    createdAt: "Created at",
+    updatedAt: "Updated at",
+    none: "None",
+    statusEnabled: "Enabled",
+    statusDisabled: "Disabled",
+    templateFamilySolutionPlatform: "Solution / platform paper",
+    templateFamilySurvey: "Survey paper",
+    scheduleDaily: "Daily",
+    scheduleEvery3Days: "Every 3 days",
+    scheduleWeekly: "Weekly",
+    loadError: "Failed to load Topic Watches",
   },
 
   // Page titles (document title)

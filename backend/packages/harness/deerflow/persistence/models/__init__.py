@@ -24,6 +24,7 @@ from deerflow.persistence.feedback.model import FeedbackRow
 from deerflow.persistence.models.run_event import RunEventRow
 from deerflow.persistence.run.model import RunRow
 from deerflow.persistence.thread_meta.model import ThreadMetaRow
+from deerflow.persistence.topic_watch.model import TopicWatchRow
 from deerflow.persistence.user.model import UserRow
 
 __all__ = [
@@ -35,5 +36,6 @@ __all__ = [
     "RunEventRow",
     "RunRow",
     "ThreadMetaRow",
+    "TopicWatchRow",
     "UserRow",
 ]

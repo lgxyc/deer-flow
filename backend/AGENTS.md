@@ -54,7 +54,7 @@ deer-flow/
 │   ├── app/                   # Application layer (import: app.*)
 │   │   ├── gateway/           # FastAPI Gateway API
 │   │   │   ├── app.py         # FastAPI application
-│   │   │   └── routers/       # FastAPI route modules (models, mcp, memory, skills, uploads, threads, artifacts, agents, suggestions, channels)
+│   │   │   └── routers/       # FastAPI route modules (models, mcp, memory, skills, uploads, threads, artifacts, agents, suggestions, channels, topic_watches)
 │   │   └── channels/          # IM platform integrations
 │   ├── tests/                 # Test suite
 │   └── docs/                  # Documentation
