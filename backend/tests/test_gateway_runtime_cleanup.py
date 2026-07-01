@@ -136,10 +136,13 @@ def test_smoke_test_docs_do_not_expect_standalone_langgraph_server():
 
 
 def test_gateway_runtime_docs_do_not_reference_transition_modes():
+    # 只检查当前仓库里仍然维护的 Gateway runtime 文档，避免已删除路径把
+    # 无关 PR 一起拖成红 CI。
     docs = {
         "backend/docs/AUTH_UPGRADE.md": _read("backend/docs/AUTH_UPGRADE.md"),
         "backend/docs/AUTH_TEST_DOCKER_GAP.md": _read("backend/docs/AUTH_TEST_DOCKER_GAP.md"),
-        "docs/CODE_CHANGE_SUMMARY_BY_FILE.md": _read("docs/CODE_CHANGE_SUMMARY_BY_FILE.md"),
+        "README.md": _read("README.md"),
+        "backend/docs/ARCHITECTURE.md": _read("backend/docs/ARCHITECTURE.md"),
     }
 
     for path, content in docs.items():
