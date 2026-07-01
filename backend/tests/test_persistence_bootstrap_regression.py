@@ -2,7 +2,7 @@
 
 End-to-end shape:
 
-1. Hand-build a SQLite DB that mirrors a real pre-#3658 deployment -- the
+1. Hand-build a SQLite DB that mirrors a real pre-#3658 / pre-#3 deployment -- the
    ``runs`` table is missing the ``token_usage_by_model`` column, mirroring
    what every existing user's DB looked like after the upgrade that triggered
    the issue.
@@ -49,6 +49,8 @@ def _seed_pre_3658_database(db_path: Path) -> None:
         Base.metadata.create_all(sync_engine)
         with sync_engine.begin() as conn:
             conn.execute(sa.text("ALTER TABLE runs DROP COLUMN token_usage_by_model"))
+            # 回到 0002 之前的旧态，避免把新加的 Topic Watch 表带进 legacy 夹具。
+            conn.execute(sa.text("DROP TABLE IF EXISTS topic_watches"))
     finally:
         sync_engine.dispose()
 
@@ -76,7 +78,7 @@ async def test_legacy_database_recovers_token_usage_column(tmp_path: Path) -> No
             cols = {row[1] for row in raw.execute("PRAGMA table_info(runs)").fetchall()}
             assert "token_usage_by_model" in cols
             version_row = raw.execute("SELECT version_num FROM alembic_version").fetchone()
-            assert version_row[0] == "0002_runs_token_usage"
+            assert version_row[0] == "0003_topic_watches"
 
         # And the read path that originally 500'd must now succeed.
         sf = get_session_factory()
@@ -105,6 +107,9 @@ async def test_legacy_database_with_manual_alter_still_bootstraps(tmp_path: Path
         Base.metadata.create_all(sync_engine)
         # Don't strip the column -- this is the "user already ran the
         # workaround" case where create_all already produced it.
+        with sync_engine.begin() as conn:
+            # 仍需移除 post-0002 的 Topic Watch 表，保持该夹具代表旧版用户数据库。
+            conn.execute(sa.text("DROP TABLE IF EXISTS topic_watches"))
     finally:
         sync_engine.dispose()
 
@@ -116,6 +121,6 @@ async def test_legacy_database_with_manual_alter_still_bootstraps(tmp_path: Path
             # No duplicate column -- list, not set, to catch dupes.
             assert cols.count("token_usage_by_model") == 1
             version_row = raw.execute("SELECT version_num FROM alembic_version").fetchone()
-            assert version_row[0] == "0002_runs_token_usage"
+            assert version_row[0] == "0003_topic_watches"
     finally:
         await close_engine()
