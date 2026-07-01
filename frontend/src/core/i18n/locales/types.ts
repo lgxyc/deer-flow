@@ -120,6 +120,7 @@ export interface Translations {
     demoChats: string;
     agents: string;
     channels: string;
+    topicWatches: string;
   };
 
   // Agents
@@ -215,6 +216,53 @@ export interface Translations {
     saveChanges: string;
     descriptions: Record<string, string>;
     connectedAs: (name: string) => string;
+  };
+
+  topicWatches: {
+    title: string;
+    description: string;
+    createTitle: string;
+    createDescription: string;
+    boardTitle: string;
+    boardDescription: string;
+    queryTerms: string;
+    queryTermsPlaceholder: string;
+    queryTermsRequired: string;
+    seedPapers: string;
+    seedPapersPlaceholder: string;
+    seedPapersLabel: string;
+    templateFamily: string;
+    schedulePreset: string;
+    enabled: string;
+    enabledDescriptionOn: string;
+    enabledDescriptionOff: string;
+    createButton: string;
+    creating: string;
+    createdSuccess: string;
+    createError: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    viewDetails: string;
+    detailTitle: string;
+    notFoundTitle: string;
+    notFound: string;
+    backToBoard: string;
+    configurationTitle: string;
+    configurationDescription: string;
+    metadataTitle: string;
+    metadataDescription: string;
+    watchId: string;
+    createdAt: string;
+    updatedAt: string;
+    none: string;
+    statusEnabled: string;
+    statusDisabled: string;
+    templateFamilySolutionPlatform: string;
+    templateFamilySurvey: string;
+    scheduleDaily: string;
+    scheduleEvery3Days: string;
+    scheduleWeekly: string;
+    loadError: string;
   };
 
   // Page titles (document title)

@@ -27,6 +27,7 @@ from app.gateway.routers import (
     suggestions,
     thread_runs,
     threads,
+    topic_watches,
     uploads,
 )
 from deerflow.config import app_config as deerflow_app_config
@@ -389,6 +390,9 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Suggestions API is mounted at /api/threads/{thread_id}/suggestions
     app.include_router(suggestions.router)
+
+    # Topic Watch API is mounted at /api/topic-watches
+    app.include_router(topic_watches.router)
 
     # User-facing IM channel connection API is mounted at /api/channels
     app.include_router(channel_connections.router)

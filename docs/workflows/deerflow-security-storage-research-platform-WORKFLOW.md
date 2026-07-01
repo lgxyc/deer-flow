@@ -23,7 +23,7 @@
 | Order | Issue | Title | Type | Blocked by | Status |
 |---:|---|---|---|---|---|
 | 1 | #2 | 初始化研究平台规范与领域文档基线 | AFK | None - can start immediately | completed |
-| 2 | #3 | 打通 Topic Watch 创建与查看路径 | AFK | #2 | open |
+| 2 | #3 | 打通 Topic Watch 创建与查看路径 | AFK | #2 | in_progress |
 | 3 | #4 | 打通 arXiv 检索到 Paper Record/PDF Corpus 路径 | AFK | #3 | blocked |
 | 4 | #5 | 打通 Analysis View 生成与知识库落地路径 | AFK | #4 | blocked |
 | 5 | #6 | 打通 Proposal Draft 生成与 6 维评分路径 | AFK | #5 | blocked |

@@ -47,7 +47,7 @@ from deerflow.persistence.migrations._helpers import _normalize_default
 asyncio_test = pytest.mark.asyncio
 
 
-HEAD = "0002_runs_token_usage"
+HEAD = "0003_topic_watches"
 BASELINE = "0001_baseline"
 
 
@@ -88,11 +88,16 @@ async def _seed_legacy_without_column(engine) -> None:
         # SQLite supports DROP COLUMN from 3.35.0; the test runner pins recent
         # Python which bundles a 3.40+ sqlite, so this is safe.
         await conn.execute(sa.text("ALTER TABLE runs DROP COLUMN token_usage_by_model"))
+        # 同时移除 post-0002 新增的 Topic Watch 表，确保夹具仍然代表旧版 legacy DB。
+        await conn.execute(sa.text("DROP TABLE IF EXISTS topic_watches"))
 
 
 async def _seed_legacy_with_column(engine) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    async with engine.begin() as conn:
+        # 该夹具表示 0002 时代但尚未接入 alembic 的 DB，因此不应提前拥有 0003 的表。
+        await conn.execute(sa.text("DROP TABLE IF EXISTS topic_watches"))
 
 
 async def _seed_legacy_missing_channel_tables(engine) -> None:
@@ -108,6 +113,7 @@ async def _seed_legacy_missing_channel_tables(engine) -> None:
         await conn.run_sync(Base.metadata.create_all)
     async with engine.begin() as conn:
         for table in (
+            "topic_watches",
             "channel_credentials",
             "channel_conversations",
             "channel_oauth_states",
@@ -615,7 +621,7 @@ class TestDecideState:
 # ---------------------------------------------------------------------------
 
 
-def test_head_revision_is_token_usage_revision() -> None:
+def test_head_revision_matches_current_schema_revision() -> None:
     assert _get_head_revision() == HEAD
 
 
