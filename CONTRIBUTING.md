@@ -161,6 +161,18 @@ Required tools:
 - uv (Python package manager)
 - nginx
 
+If you use `nvm`, switch the current shell to Node 22 before `make install` or
+`make dev`. The repo root contains `.nvmrc`, so the expected sequence is:
+
+```bash
+nvm install
+nvm use
+nvm alias default 22
+```
+
+If `make check` or `make dev` still reports `Node.js 20.x found`, the shell is
+still on the old runtime; run `nvm use 22` explicitly and retry.
+
 #### Setup Steps
 
 1. **Configure the application** (same as Docker setup above)

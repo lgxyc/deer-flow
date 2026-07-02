@@ -271,6 +271,19 @@ On Windows, run the local development flow from Git Bash. Native `cmd.exe` and P
    make check  # Verifies Node.js 22+, pnpm, uv, nginx
    ```
 
+   If you use `nvm`, switch the current shell to Node 22 before `make install`
+   or `make dev`. This repo ships a root `.nvmrc`, so the safe sequence is:
+
+   ```bash
+   nvm install
+   nvm use
+   nvm alias default 22
+   ```
+
+   If `make dev` still reports `Node.js 20.x found, but version 22+ is
+   required`, that shell has not switched yet; run `nvm use 22` explicitly and
+   retry.
+
 2. **Install dependencies**:
    ```bash
    make install  # Install backend + frontend dependencies + pre-commit hooks
