@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createTopicWatch, getTopicWatch, listTopicWatches } from "./api";
+import { papersQueryKey } from "@/core/papers/hooks";
+
+import {
+  createTopicWatch,
+  getTopicWatch,
+  listTopicWatches,
+  runTopicWatchIngest,
+} from "./api";
 import type { CreateTopicWatchRequest } from "./types";
 
 export const topicWatchesQueryKey = ["topic-watches"] as const;
@@ -33,6 +40,20 @@ export function useCreateTopicWatch() {
       void queryClient.invalidateQueries({ queryKey: topicWatchesQueryKey });
       void queryClient.invalidateQueries({
         queryKey: [...topicWatchesQueryKey, watch.watch_id],
+      });
+    },
+  });
+}
+
+/** 触发 Topic Watch 的手动 ingest，并刷新 corpus 缓存。 */
+export function useRunTopicWatchIngest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (watchId: string) => runTopicWatchIngest(watchId),
+    onSuccess: (result) => {
+      void queryClient.invalidateQueries({ queryKey: papersQueryKey });
+      void queryClient.invalidateQueries({
+        queryKey: [...topicWatchesQueryKey, result.watch_id],
       });
     },
   });

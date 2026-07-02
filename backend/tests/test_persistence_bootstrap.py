@@ -47,7 +47,7 @@ from deerflow.persistence.migrations._helpers import _normalize_default
 asyncio_test = pytest.mark.asyncio
 
 
-HEAD = "0003_topic_watches"
+HEAD = "0004_paper_records"
 BASELINE = "0001_baseline"
 
 
@@ -88,16 +88,18 @@ async def _seed_legacy_without_column(engine) -> None:
         # SQLite supports DROP COLUMN from 3.35.0; the test runner pins recent
         # Python which bundles a 3.40+ sqlite, so this is safe.
         await conn.execute(sa.text("ALTER TABLE runs DROP COLUMN token_usage_by_model"))
-        # 同时移除 post-0002 新增的 Topic Watch 表，确保夹具仍然代表旧版 legacy DB。
+        # 同时移除 post-0002 新增的研究平台表，确保夹具仍然代表旧版 legacy DB。
         await conn.execute(sa.text("DROP TABLE IF EXISTS topic_watches"))
+        await conn.execute(sa.text("DROP TABLE IF EXISTS paper_records"))
 
 
 async def _seed_legacy_with_column(engine) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     async with engine.begin() as conn:
-        # 该夹具表示 0002 时代但尚未接入 alembic 的 DB，因此不应提前拥有 0003 的表。
+        # 该夹具表示 0002 时代但尚未接入 alembic 的 DB，因此不应提前拥有后续研究平台表。
         await conn.execute(sa.text("DROP TABLE IF EXISTS topic_watches"))
+        await conn.execute(sa.text("DROP TABLE IF EXISTS paper_records"))
 
 
 async def _seed_legacy_missing_channel_tables(engine) -> None:
@@ -113,6 +115,7 @@ async def _seed_legacy_missing_channel_tables(engine) -> None:
         await conn.run_sync(Base.metadata.create_all)
     async with engine.begin() as conn:
         for table in (
+            "paper_records",
             "topic_watches",
             "channel_credentials",
             "channel_conversations",
@@ -143,6 +146,8 @@ async def test_empty_branch_creates_all_and_stamps_head(tmp_path: Path) -> None:
             "channel_credentials",
             "channel_conversations",
             "channel_oauth_states",
+            "paper_records",
+            "topic_watches",
             "alembic_version",
         }:
             assert required in tables, f"missing table: {required}"
@@ -209,6 +214,8 @@ async def test_legacy_missing_channel_tables_get_backfilled(tmp_path: Path) -> N
             "channel_credentials",
             "channel_conversations",
             "channel_oauth_states",
+            "paper_records",
+            "topic_watches",
         }:
             assert required in tables, f"legacy backfill missed: {required}"
         assert await _alembic_version(engine) == HEAD

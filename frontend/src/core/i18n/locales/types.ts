@@ -121,6 +121,7 @@ export interface Translations {
     agents: string;
     channels: string;
     topicWatches: string;
+    papers: string;
   };
 
   // Agents
@@ -263,6 +264,47 @@ export interface Translations {
     scheduleEvery3Days: string;
     scheduleWeekly: string;
     loadError: string;
+    runIngest: string;
+    ingesting: string;
+    ingestError: string;
+    ingestResultTitle: string;
+    ingestResultDescription: string;
+    ingestSuccess: (created: number, deduped: number, failed: number) => string;
+    ingestCreatedSummary: (created: number) => string;
+    ingestStats: (deduped: number, failed: number) => string;
+    openCorpus: string;
+  };
+
+  papers: {
+    title: string;
+    description: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    loadError: string;
+    viewDetail: string;
+    detailTitle: string;
+    notFoundTitle: string;
+    notFound: string;
+    backToCorpus: string;
+    openSource: string;
+    authors: string;
+    categories: string;
+    abstract: string;
+    discoveredFrom: string;
+    matchedQueries: string;
+    publishedAt: string;
+    createdAt: string;
+    updatedAt: string;
+    pdfStatus: string;
+    pdfPath: string;
+    pdfError: string;
+    pdfStatusStored: string;
+    pdfStatusMissing: string;
+    pdfStatusDownloadFailed: string;
+    pdfStatusStorageFailed: string;
+    corpusStatusTitle: string;
+    corpusStatusDescription: string;
+    none: string;
   };
 
   // Page titles (document title)

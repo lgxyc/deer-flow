@@ -22,6 +22,7 @@ from app.gateway.routers import (
     mcp,
     memory,
     models,
+    paper_records,
     runs,
     skills,
     suggestions,
@@ -393,6 +394,8 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Topic Watch API is mounted at /api/topic-watches
     app.include_router(topic_watches.router)
+    # Paper Record / Corpus API is mounted at /api/papers
+    app.include_router(paper_records.router)
 
     # User-facing IM channel connection API is mounted at /api/channels
     app.include_router(channel_connections.router)

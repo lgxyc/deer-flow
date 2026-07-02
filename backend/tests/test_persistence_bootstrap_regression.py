@@ -49,8 +49,9 @@ def _seed_pre_3658_database(db_path: Path) -> None:
         Base.metadata.create_all(sync_engine)
         with sync_engine.begin() as conn:
             conn.execute(sa.text("ALTER TABLE runs DROP COLUMN token_usage_by_model"))
-            # 回到 0002 之前的旧态，避免把新加的 Topic Watch 表带进 legacy 夹具。
+            # 回到 0002 之前的旧态，避免把新加的研究平台表带进 legacy 夹具。
             conn.execute(sa.text("DROP TABLE IF EXISTS topic_watches"))
+            conn.execute(sa.text("DROP TABLE IF EXISTS paper_records"))
     finally:
         sync_engine.dispose()
 
@@ -78,7 +79,7 @@ async def test_legacy_database_recovers_token_usage_column(tmp_path: Path) -> No
             cols = {row[1] for row in raw.execute("PRAGMA table_info(runs)").fetchall()}
             assert "token_usage_by_model" in cols
             version_row = raw.execute("SELECT version_num FROM alembic_version").fetchone()
-            assert version_row[0] == "0003_topic_watches"
+            assert version_row[0] == "0004_paper_records"
 
         # And the read path that originally 500'd must now succeed.
         sf = get_session_factory()
@@ -108,8 +109,9 @@ async def test_legacy_database_with_manual_alter_still_bootstraps(tmp_path: Path
         # Don't strip the column -- this is the "user already ran the
         # workaround" case where create_all already produced it.
         with sync_engine.begin() as conn:
-            # 仍需移除 post-0002 的 Topic Watch 表，保持该夹具代表旧版用户数据库。
+            # 仍需移除 post-0002 的研究平台表，保持该夹具代表旧版用户数据库。
             conn.execute(sa.text("DROP TABLE IF EXISTS topic_watches"))
+            conn.execute(sa.text("DROP TABLE IF EXISTS paper_records"))
     finally:
         sync_engine.dispose()
 
@@ -121,6 +123,6 @@ async def test_legacy_database_with_manual_alter_still_bootstraps(tmp_path: Path
             # No duplicate column -- list, not set, to catch dupes.
             assert cols.count("token_usage_by_model") == 1
             version_row = raw.execute("SELECT version_num FROM alembic_version").fetchone()
-            assert version_row[0] == "0003_topic_watches"
+            assert version_row[0] == "0004_paper_records"
     finally:
         await close_engine()
