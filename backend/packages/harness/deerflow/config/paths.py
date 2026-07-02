@@ -211,6 +211,21 @@ class Paths:
         """Per-user memory file: `{base_dir}/users/{user_id}/memory.json`."""
         return self.user_dir(user_id) / "memory.json"
 
+    def user_research_dir(self, user_id: str) -> Path:
+        """Per-user research workspace root: `{base_dir}/users/{user_id}/research/`."""
+        return self.user_dir(user_id) / "research"
+
+    def user_corpus_dir(self, user_id: str) -> Path:
+        """Per-user corpus root: `{base_dir}/users/{user_id}/research/corpus/`."""
+        return self.user_research_dir(user_id) / "corpus"
+
+    def user_corpus_pdfs_dir(self, user_id: str, *, source_name: str | None = None) -> Path:
+        """Per-user corpus PDF root, optionally namespaced by source."""
+        base = self.user_corpus_dir(user_id) / "pdfs"
+        if source_name is not None:
+            return base / source_name
+        return base
+
     def user_agents_dir(self, user_id: str) -> Path:
         """Per-user root for that user's custom agents: `{base_dir}/users/{user_id}/agents/`."""
         return self.user_dir(user_id) / "agents"

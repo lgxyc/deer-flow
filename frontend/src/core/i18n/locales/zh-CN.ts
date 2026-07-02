@@ -174,6 +174,7 @@ export const zhCN: Translations = {
     demoChats: "演示对话",
     agents: "智能体",
     topicWatches: "Topic Watch",
+    papers: "Corpus",
   },
 
   // Agents
@@ -335,6 +336,53 @@ export const zhCN: Translations = {
     scheduleEvery3Days: "每 3 天",
     scheduleWeekly: "每周",
     loadError: "加载 Topic Watch 失败",
+    runIngest: "运行 ingest",
+    ingesting: "正在运行 ingest...",
+    ingestError: "运行 Topic Watch ingest 失败",
+    ingestResultTitle: "最近一次手动 ingest",
+    ingestResultDescription:
+      "这里展示当前 watch 最近一次手动 ingest 返回的结果摘要。",
+    ingestSuccess: (created: number, deduped: number, failed: number) =>
+      `手动 ingest 完成：新建 ${created}，去重命中 ${deduped}，失败 ${failed}。`,
+    ingestCreatedSummary: (created: number) =>
+      `Created ${created} paper record`,
+    ingestStats: (deduped: number, failed: number) =>
+      `Deduped ${deduped} · Failed ${failed}`,
+    openCorpus: "Open corpus",
+  },
+
+  papers: {
+    title: "Paper Queue / Corpus",
+    description: "查看已经被 ingest 到 DeerFlow 本地 corpus 的 Paper Record。",
+    emptyTitle: "还没有 Paper Record",
+    emptyDescription:
+      "先从某个 Topic Watch 运行 ingest，把论文放进本地 corpus。",
+    loadError: "加载 Paper Record 失败",
+    viewDetail: "View paper detail",
+    detailTitle: "Paper Record Detail",
+    notFoundTitle: "Paper Record 不可用",
+    notFound: "未能加载请求的 Paper Record。",
+    backToCorpus: "返回 Corpus",
+    openSource: "打开源页面",
+    authors: "作者",
+    categories: "分类",
+    abstract: "摘要",
+    discoveredFrom: "发现来源",
+    matchedQueries: "命中查询词",
+    publishedAt: "发布时间",
+    createdAt: "创建时间",
+    updatedAt: "更新时间",
+    pdfStatus: "PDF 状态",
+    pdfPath: "本地 PDF 路径",
+    pdfError: "PDF 错误",
+    pdfStatusStored: "已本地保存",
+    pdfStatusMissing: "上游无 PDF",
+    pdfStatusDownloadFailed: "PDF 下载失败",
+    pdfStatusStorageFailed: "PDF 写入失败",
+    corpusStatusTitle: "Corpus 状态",
+    corpusStatusDescription:
+      "这里展示论文 PDF 在 DeerFlow 本地存储中的当前状态。",
+    none: "无",
   },
 
   // Page titles (document title)

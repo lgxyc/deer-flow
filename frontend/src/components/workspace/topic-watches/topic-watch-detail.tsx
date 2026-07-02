@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,7 +15,11 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/core/i18n/hooks";
-import { useTopicWatch } from "@/core/topic-watches/hooks";
+import type { TopicWatchIngestResult } from "@/core/papers/types";
+import {
+  useRunTopicWatchIngest,
+  useTopicWatch,
+} from "@/core/topic-watches/hooks";
 import type {
   TopicWatchSchedulePreset,
   TopicWatchTemplateFamily,
@@ -40,6 +47,30 @@ function formatSchedulePreset(
 export function TopicWatchDetail({ watchId }: { watchId: string }) {
   const { t } = useI18n();
   const { watch, isLoading, error } = useTopicWatch(watchId);
+  const runIngestMutation = useRunTopicWatchIngest();
+  const [lastIngestResult, setLastIngestResult] =
+    useState<TopicWatchIngestResult | null>(null);
+
+  /** 触发手动 ingest，并把这次结果保留在详情页上下文里。 */
+  const handleRunIngest = async () => {
+    try {
+      const result = await runIngestMutation.mutateAsync(watchId);
+      setLastIngestResult(result);
+      toast.success(
+        t.topicWatches.ingestSuccess(
+          result.created_count,
+          result.deduped_count,
+          result.failed_count,
+        ),
+      );
+    } catch (mutationError) {
+      toast.error(
+        mutationError instanceof Error
+          ? mutationError.message
+          : t.topicWatches.ingestError,
+      );
+    }
+  };
 
   if (isLoading) {
     return (
@@ -82,11 +113,21 @@ export function TopicWatchDetail({ watchId }: { watchId: string }) {
             {watch.watch_id}
           </p>
         </div>
-        <Button asChild variant="outline">
-          <Link href="/workspace/topic-watches">
-            {t.topicWatches.backToBoard}
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            disabled={runIngestMutation.isPending}
+            onClick={() => void handleRunIngest()}
+          >
+            {runIngestMutation.isPending
+              ? t.topicWatches.ingesting
+              : t.topicWatches.runIngest}
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/workspace/topic-watches">
+              {t.topicWatches.backToBoard}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 p-6 lg:grid-cols-2">
@@ -171,6 +212,60 @@ export function TopicWatchDetail({ watchId }: { watchId: string }) {
             </div>
           </CardContent>
         </Card>
+
+        {lastIngestResult ? (
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>{t.topicWatches.ingestResultTitle}</CardTitle>
+              <CardDescription>
+                {t.topicWatches.ingestResultDescription}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <div className="flex flex-wrap gap-2">
+                <Badge>
+                  {t.topicWatches.ingestCreatedSummary(
+                    lastIngestResult.created_count,
+                  )}
+                </Badge>
+                <Badge variant="outline">
+                  {t.topicWatches.ingestStats(
+                    lastIngestResult.deduped_count,
+                    lastIngestResult.failed_count,
+                  )}
+                </Badge>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="outline">
+                  <Link href="/workspace/papers">
+                    {t.topicWatches.openCorpus}
+                  </Link>
+                </Button>
+              </div>
+
+              <div className="grid gap-3">
+                {lastIngestResult.papers.map((paper) => (
+                  <Card key={paper.paper_id}>
+                    <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="font-medium">{paper.title}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {paper.source_name}:{paper.source_paper_id}
+                        </p>
+                      </div>
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={`/workspace/papers/${paper.paper_id}`}>
+                          {t.papers.viewDetail}
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
     </div>
   );

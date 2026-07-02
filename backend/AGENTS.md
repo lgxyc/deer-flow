@@ -45,6 +45,7 @@ deer-flow/
 │   │           ├── tools/builtins/    # Built-in tools (present_files, ask_clarification, view_image)
 │   │           ├── mcp/               # MCP integration (tools, cache, client)
 │   │           ├── models/            # Model factory with thinking/vision support
+│   │           ├── research/          # Research-platform deep modules (arXiv adapter, ingest, corpus storage)
 │   │           ├── skills/            # Skills discovery, loading, parsing
 │   │           ├── config/            # Configuration system (app, model, sandbox, tool, etc.)
 │   │           ├── community/         # Community tools (search/fetch/scrape, image search, AIO sandbox)
@@ -54,7 +55,7 @@ deer-flow/
 │   ├── app/                   # Application layer (import: app.*)
 │   │   ├── gateway/           # FastAPI Gateway API
 │   │   │   ├── app.py         # FastAPI application
-│   │   │   └── routers/       # FastAPI route modules (models, mcp, memory, skills, uploads, threads, artifacts, agents, suggestions, channels, topic_watches)
+│   │   │   └── routers/       # FastAPI route modules (models, mcp, memory, skills, uploads, threads, artifacts, agents, suggestions, channels, topic_watches, paper_records)
 │   │   └── channels/          # IM platform integrations
 │   ├── tests/                 # Test suite
 │   └── docs/                  # Documentation
@@ -63,6 +64,16 @@ deer-flow/
     ├── public/                # Public skills (committed)
     └── custom/                # Custom skills (gitignored)
 ```
+
+Research-platform persistence and runtime additions introduced by the current
+workflow:
+
+- `deerflow.persistence.topic_watch` stores the `Topic Watch` control plane.
+- `deerflow.persistence.paper_record` stores raw `Paper Record` rows with
+  source metadata, watch provenance, and local PDF status.
+- `deerflow.research` owns the deep ingest path:
+  arXiv query -> in-run dedupe -> local PDF corpus write -> `Paper Record`
+  upsert.
 
 ## Important Development Guidelines
 

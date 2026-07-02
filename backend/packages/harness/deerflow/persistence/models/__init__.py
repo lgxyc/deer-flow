@@ -22,6 +22,7 @@ from deerflow.persistence.channel_connections.model import (
 )
 from deerflow.persistence.feedback.model import FeedbackRow
 from deerflow.persistence.models.run_event import RunEventRow
+from deerflow.persistence.paper_record.model import PaperRecordRow
 from deerflow.persistence.run.model import RunRow
 from deerflow.persistence.thread_meta.model import ThreadMetaRow
 from deerflow.persistence.topic_watch.model import TopicWatchRow
@@ -33,6 +34,7 @@ __all__ = [
     "ChannelCredentialRow",
     "ChannelOAuthStateRow",
     "FeedbackRow",
+    "PaperRecordRow",
     "RunEventRow",
     "RunRow",
     "ThreadMetaRow",

@@ -1,5 +1,6 @@
 import { fetch } from "@/core/api/fetcher";
 import { getBackendBaseURL } from "@/core/config";
+import type { TopicWatchIngestResult } from "@/core/papers/types";
 
 import type { CreateTopicWatchRequest, TopicWatch } from "./types";
 
@@ -62,4 +63,23 @@ export async function getTopicWatch(watchId: string): Promise<TopicWatch> {
     );
   }
   return response.json() as Promise<TopicWatch>;
+}
+
+/** 从指定 Topic Watch 触发一次手动 ingest。 */
+export async function runTopicWatchIngest(
+  watchId: string,
+): Promise<TopicWatchIngestResult> {
+  const response = await fetch(
+    topicWatchesUrl(`/${encodeURIComponent(watchId)}/ingest`),
+    {
+      method: "POST",
+    },
+  );
+  if (!response.ok) {
+    await throwTopicWatchApiError(
+      response,
+      `Failed to run Topic Watch ingest: ${response.statusText}`,
+    );
+  }
+  return response.json() as Promise<TopicWatchIngestResult>;
 }

@@ -7,8 +7,15 @@ from typing import ClassVar
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 
+from app.gateway.routers.paper_records import PaperRecordResponse
 from deerflow.persistence.engine import get_session_factory
+from deerflow.persistence.paper_record import PaperRecordRepository
 from deerflow.persistence.topic_watch import TopicWatchConflictError, TopicWatchRepository
+from deerflow.research.ingest import (
+    TopicWatchIngestError,
+    TopicWatchIngestService,
+    TopicWatchNotFoundError,
+)
 
 router = APIRouter(prefix="/api/topic-watches", tags=["topic-watches"])
 
@@ -34,6 +41,35 @@ def _get_repository(request: Request) -> TopicWatchRepository:
     repo = TopicWatchRepository(session_factory)
     request.app.state.topic_watch_repo = repo
     return repo
+
+
+def _get_paper_record_repository(request: Request) -> PaperRecordRepository:
+    """优先复用 app.state 上的 Paper Record 仓储。"""
+    repo = getattr(request.app.state, "paper_record_repo", None)
+    if isinstance(repo, PaperRecordRepository):
+        return repo
+
+    session_factory = get_session_factory()
+    if session_factory is None:
+        raise HTTPException(status_code=503, detail="Paper Record persistence is not available")
+
+    repo = PaperRecordRepository(session_factory)
+    request.app.state.paper_record_repo = repo
+    return repo
+
+
+def _get_ingest_service(request: Request) -> TopicWatchIngestService:
+    """优先复用 app.state 上的 ingest 服务，没有则按 repo 组装。"""
+    service = getattr(request.app.state, "topic_watch_ingest_service", None)
+    if isinstance(service, TopicWatchIngestService):
+        return service
+
+    service = TopicWatchIngestService(
+        topic_watch_repo=_get_repository(request),
+        paper_record_repo=_get_paper_record_repository(request),
+    )
+    request.app.state.topic_watch_ingest_service = service
+    return service
 
 
 class TopicWatchResponse(BaseModel):
@@ -127,6 +163,19 @@ class TopicWatchCreateRequest(BaseModel):
         return value
 
 
+class TopicWatchIngestResponse(BaseModel):
+    """一次手动 ingest 的聚合响应。"""
+
+    watch_id: str
+    searched_queries: list[str] = Field(default_factory=list)
+    total_hits: int
+    screened_in_count: int
+    created_count: int
+    deduped_count: int
+    failed_count: int
+    papers: list[PaperRecordResponse] = Field(default_factory=list)
+
+
 @router.post("", response_model=TopicWatchResponse)
 async def create_topic_watch(
     body: TopicWatchCreateRequest,
@@ -167,3 +216,29 @@ async def get_topic_watch(watch_id: str, request: Request) -> TopicWatchResponse
     if watch is None:
         raise HTTPException(status_code=404, detail=f"Topic Watch '{watch_id}' not found")
     return TopicWatchResponse.model_validate(watch)
+
+
+@router.post("/{watch_id}/ingest", response_model=TopicWatchIngestResponse)
+async def run_topic_watch_ingest(watch_id: str, request: Request) -> TopicWatchIngestResponse:
+    """从指定 Topic Watch 触发一次手动 arXiv ingest。"""
+    service = _get_ingest_service(request)
+    try:
+        result = await service.run_manual_ingest(
+            user_id=_get_user_id(request),
+            watch_id=watch_id,
+        )
+    except TopicWatchNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except TopicWatchIngestError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return TopicWatchIngestResponse(
+        watch_id=result.watch_id,
+        searched_queries=result.searched_queries,
+        total_hits=result.total_hits,
+        screened_in_count=result.screened_in_count,
+        created_count=result.created_count,
+        deduped_count=result.deduped_count,
+        failed_count=result.failed_count,
+        papers=[PaperRecordResponse.model_validate(item) for item in result.papers],
+    )

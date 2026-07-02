@@ -181,6 +181,7 @@ export const enUS: Translations = {
     demoChats: "Demo chats",
     agents: "Agents",
     topicWatches: "Topic Watches",
+    papers: "Corpus",
   },
 
   // Agents
@@ -354,6 +355,54 @@ export const enUS: Translations = {
     scheduleEvery3Days: "Every 3 days",
     scheduleWeekly: "Weekly",
     loadError: "Failed to load Topic Watches",
+    runIngest: "Run ingest",
+    ingesting: "Running ingest...",
+    ingestError: "Failed to run Topic Watch ingest",
+    ingestResultTitle: "Latest manual ingest",
+    ingestResultDescription:
+      "This is the most recent manual ingest result returned for the current watch.",
+    ingestSuccess: (created: number, deduped: number, failed: number) =>
+      `Manual ingest finished: created ${created}, deduped ${deduped}, failed ${failed}.`,
+    ingestCreatedSummary: (created: number) =>
+      `Created ${created} paper record${created === 1 ? "" : "s"}`,
+    ingestStats: (deduped: number, failed: number) =>
+      `Deduped ${deduped} · Failed ${failed}`,
+    openCorpus: "Open corpus",
+  },
+
+  papers: {
+    title: "Paper Queue / Corpus",
+    description:
+      "Review the Paper Records already ingested into the local DeerFlow corpus.",
+    emptyTitle: "No Paper Records yet",
+    emptyDescription:
+      "Run ingest from a Topic Watch to populate the local corpus for the first time.",
+    loadError: "Failed to load Paper Records",
+    viewDetail: "View paper detail",
+    detailTitle: "Paper Record Detail",
+    notFoundTitle: "Paper Record unavailable",
+    notFound: "The requested Paper Record could not be loaded.",
+    backToCorpus: "Back to corpus",
+    openSource: "Open source page",
+    authors: "Authors",
+    categories: "Categories",
+    abstract: "Abstract",
+    discoveredFrom: "Discovered from",
+    matchedQueries: "Matched queries",
+    publishedAt: "Published at",
+    createdAt: "Created at",
+    updatedAt: "Updated at",
+    pdfStatus: "PDF status",
+    pdfPath: "Local PDF path",
+    pdfError: "PDF error",
+    pdfStatusStored: "Stored locally",
+    pdfStatusMissing: "Missing upstream PDF",
+    pdfStatusDownloadFailed: "PDF download failed",
+    pdfStatusStorageFailed: "PDF storage failed",
+    corpusStatusTitle: "Corpus status",
+    corpusStatusDescription:
+      "This is the local DeerFlow storage state for the paper's PDF artifact.",
+    none: "None",
   },
 
   // Page titles (document title)
